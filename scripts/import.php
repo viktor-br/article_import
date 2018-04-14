@@ -51,7 +51,7 @@ try {
     });
     $container->set(Logger::class, function () {
         $log = new Logger('import');
-        $log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+        $log->pushHandler(new StreamHandler('php://stdout', Logger::INFO));
 
         return $log;
     });

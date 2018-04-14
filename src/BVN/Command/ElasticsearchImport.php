@@ -31,8 +31,8 @@ class ElasticsearchImport extends AbstractCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $limit = $input->getOption('limit');
-        $maxResults = $input->getOption('n');
+        $limit = (int) $input->getOption('limit');
+        $maxResults = (int) $input->getOption('n');
 
         $reader = new Reader(
             $this->container->get(StorageClient::class),

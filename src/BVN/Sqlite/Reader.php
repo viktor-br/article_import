@@ -5,6 +5,7 @@ namespace BVN\Sqlite;
 use BVN\Import\ReaderInterface;
 use BVN\Entity\ArticleCollection;
 use BVN\Storage\StorageClient;
+use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 
@@ -25,6 +26,9 @@ class Reader implements ReaderInterface
     /** @var LoggerInterface */
     protected $logger;
 
+    /** @var ObjectRepository */
+    protected $articleRepository;
+
     /**
      * @param StorageClient $client
      * @param int $limit
@@ -37,6 +41,7 @@ class Reader implements ReaderInterface
         $this->limit = $limit;
         $this->maxResults = $maxResults;
         $this->logger = $logger;
+        $this->articleRepository = $this->client->getStorage()->getRepository('BVN\Entity\Article');
     }
 
     /**
@@ -50,9 +55,7 @@ class Reader implements ReaderInterface
             return $articleCollection;
         }
 
-        $articleRepository = $this->client->getStorage()->getRepository('BVN\Entity\Article');
-
-        $articles = $articleRepository->findBy(['processed' => 0], ['id' => 'ASC'], $this->limit);
+        $articles = $this->articleRepository->findBy(['processed' => 0], ['id' => 'ASC'], $this->limit);
         $this->counter += count($articles);
 
         foreach ($articles as $article) {
@@ -74,6 +77,7 @@ class Reader implements ReaderInterface
                 $this->client->getStorage()->persist($article);
             }
             $this->client->getStorage()->flush();
+            $this->client->getStorage()->clear();
         } catch (ORMException $e) {
             throw $e;
         }
@@ -91,6 +95,7 @@ class Reader implements ReaderInterface
                 $this->client->getStorage()->persist($article);
             }
             $this->client->getStorage()->flush();
+            $this->client->getStorage()->clear();
         } catch (ORMException $e) {
             throw $e;
         }
