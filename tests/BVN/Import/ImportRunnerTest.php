@@ -4,63 +4,66 @@ namespace BVN\Import;
 
 use BVN\Entity\ArticleCollection;
 use BVN\Entity\Article;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 
 class ImportRunnerTest extends TestCase
 {
     public function testImportRunner()
     {
-        $mock = $this->createMock(ImporterInterface::class);
+        $importerMock = $this->createMock(ImporterInterface::class);
+        $loggerMock = $this->createMock(Logger::class);
 
         $articles = new ArticleCollection();
         $articles->append(new Article());
         $articles->append(new Article());
 
-        $mock
+        $importerMock
             ->expects($this->at(0))
             ->method('read')
             ->willReturn($articles);
 
-        $mock
+        $importerMock
             ->expects($this->at(1))
             ->method('read')
             ->willReturn(new ArticleCollection());
 
-        $mock
+        $importerMock
             ->expects($this->once())
             ->method('write');
 
-        $mock
+        $importerMock
             ->expects($this->once())
             ->method('writeSucceeded');
 
-        $runner = new ImportRunner($mock);
+        $runner = new ImportRunner($importerMock, $loggerMock);
         $runner->import();
     }
 
     public function testImportRunnerFailed()
     {
-        $mock = $this->createMock(ImporterInterface::class);
+        $importerMock = $this->createMock(ImporterInterface::class);
+        $loggerMock = $this->createMock(Logger::class);
 
         $articles = new ArticleCollection();
         $articles->append(new Article());
         $articles->append(new Article());
 
-        $mock
+        $importerMock
             ->expects($this->at(0))
             ->method('read')
             ->willReturn($articles);
 
-        $mock
+        $importerMock
             ->expects($this->once())
             ->method('write')
             ->willThrowException(new \Exception());
 
-        $mock
+        $importerMock
             ->expects($this->never())
             ->method('writeSucceeded');
 
-        $runner = new ImportRunner($mock);
+        $runner = new ImportRunner($importerMock, $loggerMock);
         $runner->import();
     }
 }

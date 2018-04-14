@@ -18,15 +18,19 @@ use Elasticsearch\ClientBuilder;
 use Symfony\Component\Console\Application;
 use BVN\Command\SqliteReset;
 use BVN\Storage\StorageClient;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
+// Read config
 try {
     $config = (new ConfigLoader())
         ->load([__DIR__.'/../config'], ['config.yml']);
-} catch (Exception $e) {
-    echo $e->getMessage() . PHP_EOL;
+} catch (Exception $ex) {
+    echo $ex->getMessage(), PHP_EOL;
     exit(1);
 }
 
+// Init container (move to a better place)
 try {
     $containerBuilder = new ContainerBuilder();
     $containerBuilder->useAutowiring(false);
@@ -45,6 +49,12 @@ try {
 
         return new StorageClient($entityManager);
     });
+    $container->set(Logger::class, function () {
+        $log = new Logger('import');
+        $log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+
+        return $log;
+    });
     $container->set(Resetter::class, function () use ($container) {
         $storageClient = $container->get(StorageClient::class);
 
@@ -59,13 +69,20 @@ try {
     $container->set(LanguageDetectionAdapter::class, function () {
         return new LanguageDetectionAdapter();
     });
+} catch (\Exception $ex) {
+    echo $ex->getMessage(), PHP_EOL;
+    exit(1);
+}
 
+// App part
+try {
     $app = new Application('Article importer', 'v0.1.0');
-    $app -> add(new ElasticsearchImport('elasticsearch:import', $container));
-    $app -> add(new ElasticsearchClear('elasticsearch:clear', $container));
-    $app -> add(new SqliteReset('sqlite:reset', $container));
-    $app -> run();
-} catch (Exception $e) {
-    echo $e->getMessage(), "\n";
+    $app->add(new ElasticsearchImport('elasticsearch:import', $container));
+    $app->add(new ElasticsearchClear('elasticsearch:clear', $container));
+    $app->add(new SqliteReset('sqlite:reset', $container));
+    $app->run();
+} catch (Exception $ex) {
+    echo $ex->getMessage(), PHP_EOL;
+    exit(1);
 }
 

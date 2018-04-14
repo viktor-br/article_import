@@ -9,6 +9,7 @@ use BVN\Language\LanguageDetectionAdapter;
 use BVN\Sqlite\Reader;
 use BVN\Storage\StorageClient;
 use Elasticsearch\Client;
+use Monolog\Logger;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,10 +34,19 @@ class ElasticsearchImport extends AbstractCommand
         $limit = $input->getOption('limit');
         $maxResults = $input->getOption('n');
 
-        $reader = new Reader($this->container->get(StorageClient::class), $limit, $maxResults);
-        $writer = new Writer($this->container->get(Client::class), $this->container->get(LanguageDetectionAdapter::class));
+        $reader = new Reader(
+            $this->container->get(StorageClient::class),
+            $limit,
+            $maxResults,
+            $this->container->get(Logger::class)
+        );
+        $writer = new Writer(
+            $this->container->get(Client::class),
+            $this->container->get(LanguageDetectionAdapter::class),
+            $this->container->get(Logger::class)
+        );
         $importer = new Basic($reader, $writer);
-        $importRunner = new ImportRunner($importer);
+        $importRunner = new ImportRunner($importer, $this->container->get(Logger::class));
         $importRunner->import();
     }
 }

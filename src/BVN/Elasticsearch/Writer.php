@@ -7,17 +7,22 @@ use BVN\Entity\Article;
 use BVN\Language\LanguageDetectorInterface;
 use BVN\Import\WriterInterface;
 use Elasticsearch\Client;
+use Psr\Log\LoggerInterface;
 
 class Writer extends AbstractClient implements WriterInterface
 {
     /** @var LanguageDetectorInterface */
     protected $languageDetector;
 
-    public function __construct(Client $client, LanguageDetectorInterface $languageDetector)
+    /** @var LoggerInterface */
+    protected $logger;
+
+    public function __construct(Client $client, LanguageDetectorInterface $languageDetector, LoggerInterface $logger)
     {
         parent::__construct($client);
 
         $this->languageDetector = $languageDetector;
+        $this->logger = $logger;
     }
 
     /**
@@ -27,7 +32,9 @@ class Writer extends AbstractClient implements WriterInterface
     {
         $articlesByLang = [];
         foreach ($articles as $article) {
+            /** @var Article $article */
             $lang = $this->languageDetector->detect(implode("\n", $article->getParagraphs()));
+            $this->logger->debug(sprintf("Detected language '%s' for article '%s'", $lang, $article->getTitle()));
             if (!isset($articlesByLang[$lang])) {
                 $articlesByLang[$lang] = new ArticleCollection();
             }
@@ -57,8 +64,7 @@ class Writer extends AbstractClient implements WriterInterface
                 ];
             }
 
-            $response = $this->client->bulk($params);
-            // TODO handle response
+            $this->client->bulk($params);
         }
     }
 }

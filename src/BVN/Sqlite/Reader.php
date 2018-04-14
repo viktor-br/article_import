@@ -6,6 +6,7 @@ use BVN\Import\ReaderInterface;
 use BVN\Entity\ArticleCollection;
 use BVN\Storage\StorageClient;
 use Doctrine\ORM\ORMException;
+use Psr\Log\LoggerInterface;
 
 class Reader implements ReaderInterface
 {
@@ -21,17 +22,21 @@ class Reader implements ReaderInterface
     /** @var int */
     protected $maxResults = 0;
 
+    /** @var LoggerInterface */
+    protected $logger;
+
     /**
-     * Reader constructor.
      * @param StorageClient $client
      * @param int $limit
      * @param int $maxResults
+     * @param LoggerInterface $logger
      */
-    public function __construct(StorageClient $client, int $limit, int $maxResults)
+    public function __construct(StorageClient $client, int $limit, int $maxResults, LoggerInterface $logger)
     {
         $this->client = $client;
         $this->limit = $limit;
         $this->maxResults = $maxResults;
+        $this->logger = $logger;
     }
 
     /**

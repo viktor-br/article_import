@@ -6,13 +6,15 @@ use BVN\Entity\Article;
 use BVN\Entity\ArticleCollection;
 use BVN\Language\LanguageDetectionAdapter;
 use Elasticsearch\Client;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 
 class WriterTest extends TestCase
 {
     public function testWrite()
     {
-        $client = $this->createMock(Client::class);
+        $clientMock = $this->createMock(Client::class);
+        $loggerMock = $this->createMock(Logger::class);
 
         $articleRu1 = new Article();
         $articleRu1->setAuthor('Test Author');
@@ -27,7 +29,7 @@ class WriterTest extends TestCase
             "Текст по-русски",
             "Второй параграф и тоже по-русски"
         ]);
-        $client->expects($this->at(0))
+        $clientMock->expects($this->at(0))
             ->method('bulk')
             ->with($this->createRequestFromArticle('ru', $articleRu1));
 
@@ -45,7 +47,7 @@ class WriterTest extends TestCase
             "Другий параграф українською"
         ]);
 
-        $client->expects($this->at(1))
+        $clientMock->expects($this->at(1))
             ->method('bulk')
             ->with($this->createRequestFromArticle('uk', $articleUk1));
 
@@ -55,7 +57,7 @@ class WriterTest extends TestCase
         $articles->append($articleRu1);
         $articles->append($articleUk1);
 
-        $writer = new Writer($client, $languageDetector);
+        $writer = new Writer($clientMock, $languageDetector, $loggerMock);
         $writer->write($articles);
     }
 
