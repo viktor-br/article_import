@@ -4,16 +4,16 @@ Import articles from sqlite storage into local elasticsearch
 
 
 ```shell
-scripts/import sqlite:reset
+scripts/import.php sqlite:reset
 ```
 
 ```shell
-scripts/import elasticsearch:clear
+scripts/import.php elasticsearch:clear
 ```
 
 To test import with real sqlite and elasticsearch
 ```shell
-scripts/import elasticsearch:import --limit=10 --n=20
+scripts/import.php elasticsearch:import --limit=10 --n=20
 ```
 
 Run tests

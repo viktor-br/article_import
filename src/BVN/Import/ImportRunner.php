@@ -26,6 +26,7 @@ class ImportRunner
                 $this->importer->writeSucceeded($articles);
             } catch (\Exception $ex) {
                 $this->importer->writeFailed($articles);
+                // TODO process exception properly (log)
             }
         }
     }

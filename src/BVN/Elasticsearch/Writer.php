@@ -22,7 +22,6 @@ class Writer extends AbstractClient implements WriterInterface
 
     /**
      * @param ArticleCollection $articles
-     * @param string $lang
      */
     public function write(ArticleCollection $articles)
     {

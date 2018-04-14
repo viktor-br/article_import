@@ -38,7 +38,7 @@ try {
         $entityManager = EntityManager::create(
             [
                 'driver' => $config['storage']['driver'],
-                'path' => $config['storage']['path'],
+                'path' => __DIR__ . '/../' . $config['storage']['path'],
             ],
             $doctrineConfig
         );
