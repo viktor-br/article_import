@@ -1,0 +1,3 @@
+storage:
+  driver: pdo_sqlite
+  path: storage/jobs.sqlite3
