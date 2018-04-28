@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace BVN\Elasticsearch;
 
@@ -19,7 +20,7 @@ class WriterTest extends TestCase
         $articleRu1 = new Article();
         $articleRu1->setAuthor('Test Author');
         $articleRu1->setExternalId('12345');
-        $articleRu1->setId('123');
+        $articleRu1->setId(123);
         $articleRu1->setTitle('Test title');
         $articleRu1->setUrl('http://localhost/ru');
         $articleRu1->setAddedAt(new \DateTime());
@@ -36,7 +37,7 @@ class WriterTest extends TestCase
         $articleUk1 = new Article();
         $articleUk1->setAuthor('Test Author');
         $articleUk1->setExternalId('12345');
-        $articleUk1->setId('123');
+        $articleUk1->setId(123);
         $articleUk1->setTitle('Test title');
         $articleUk1->setUrl('http://localhost/uk');
         $articleUk1->setAddedAt(new \DateTime());
